@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="assets/icon.png" alt="Tic-Tac-Toe Icon">
+</p>
 <h1 align="center">
   Tic-Tac-Toe Solver
 </h1>
@@ -15,3 +18,22 @@
 </p>
 
 ---
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+---
+
+<p align="right">
+  <a target="_blank" href="https://icons8.com/icon/102433/broken-link">Broken Link</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+</p>
