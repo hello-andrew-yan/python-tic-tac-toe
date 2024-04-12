@@ -14,7 +14,7 @@
     <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr-raw/hello-andrew-yan/relink?style=flat-square""></a>
 </p>
 <p align="center">
-  Programmed agent to play the game of Nine-Board Tic-Tac-Toe.
+  Programmed AI agent to play the game of Nine-Board Tic-Tac-Toe.
 </p>
 
 ---
