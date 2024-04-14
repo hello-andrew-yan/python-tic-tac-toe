@@ -56,11 +56,13 @@ public class Agent {
         }
     }
 
+    /*
+     * From the server, init() tells us that a new game is about to begin.
+     * start(x) or start(o) tell us whether we will be playing first (x)
+     * or second (o); we might be able to ignore start if we internally
+     * use 'X' for *our* moves and 'O' for *opponent* moves.
+     */
     public static int parse(String line) {
-	// init tells us that a new game is about to begin.
-	// start(x) or start(o) tell us whether we will be playing first (x)
-	// or second (o); we might be able to ignore start if we internally
-	// use 'X' for *our* moves and 'O' for *opponent* moves.
         if( line.contains("init")) {
             // No action
         } else if( line.contains("start")) {
