@@ -172,8 +172,8 @@ public class Agent {
             // Start of the minimax function with alpha-beta pruning.
             int score = minimax(copy, i, 1, MINIMUM_SCORE, MAXIMUM_SCORE, AGENT_MARK);
 
+            System.out.printf("=> Calculated score of \u001B[32m%s\u001B[0m\n", score);
             System.out.println();
-            System.out.printf("Calculated score of \u001B[32m%s\u001B[0m\n", score);
 
             copy[global_previous][i] = EMPTY_CELL;
 
@@ -233,7 +233,7 @@ public class Agent {
             1, 0, 1,
             0, 2, 0,
             1, 0, 1
-    }
+    };
     static int TWO_IN_ROW = 3;
     static int THREE_IN_ROW = 5;
     static int BLOCKED_OPPONENT = 4;
@@ -241,10 +241,10 @@ public class Agent {
     // Assumes that the minimax algorithm's maximum
     // depth stops at the MAXIMISING agent, this function
     // evaluates how well this board is performing.
-    public static int evaluateBoardScore(int[] board) {
+    public static int evaluateBoard(int[] board) {
         int score = 0;
         int winPotential = countPotentialWins(board, AGENT_MARK);
-        int lossPotential = countPotentialWins(board, PLAYER_MARK)
+        int lossPotential = countPotentialWins(board, PLAYER_MARK);
 
         // Agent has two in a row on the board, and has a high possibility of winning the scenario next turn.
         score += winPotential * THREE_IN_ROW;
