@@ -226,27 +226,51 @@ public class Agent {
         return true;
     }
 
-    static int MARK_COUNT_SCORE = 10;
-    static int NEAR_WIN_SCORE = 20;
 
+    // Negative one at index 0 to adhere to 1 - 9 range.
+    // Center square and corner squares are more valuable.
+    static int[] POSITIONAL_SCORES = {-1,
+            1, 0, 1,
+            0, 2, 0,
+            1, 0, 1
+    }
+    static int TWO_IN_ROW = 3;
+    static int THREE_IN_ROW = 5;
+    static int BLOCKED_OPPONENT = 4;
+
+    // Assumes that the minimax algorithm's maximum
+    // depth stops at the MAXIMISING agent, this function
+    // evaluates how well this board is performing.
     public static int evaluateBoardScore(int[] board) {
         int score = 0;
+        int winPotential = countPotentialWins(board, AGENT_MARK);
+        int lossPotential = countPotentialWins(board, PLAYER_MARK)
 
-        score += countMark(board, AGENT_MARK) * MARK_COUNT_SCORE;
-        score -= countMark(board, PLAYER_MARK) * MARK_COUNT_SCORE;
+        // Agent has two in a row on the board, and has a high possibility of winning the scenario next turn.
+        score += winPotential * THREE_IN_ROW;
+        // Player has two in a row on the board, and has a high possibility of winning the scenario next turn.
+        score -= lossPotential * THREE_IN_ROW;
 
-        score += countPotentialWins(board, AGENT_MARK) * NEAR_WIN_SCORE;
-        score -= countPotentialWins(board, PLAYER_MARK) * NEAR_WIN_SCORE;
 
-        return score;
-    }
-
-    public static int countMark(int[] board, int mark) {
-        int count = 0;
+        int doubles = 0;
+        int denies = 0;
         for (int i = 1; i < 10; i++) {
-            if (board[1] == mark) count++;
+            if (board[i] != EMPTY_CELL) continue;
+
+            // Positional Scores on the board.
+            score += POSITIONAL_SCORES[i];
+
+            board[i] = AGENT_MARK;
+            // Creating two in a row.
+            if (countPotentialWins(board, AGENT_MARK) > winPotential) doubles++;
+
+            // Blocking opponent wins.
+            if (countPotentialWins(board, PLAYER_MARK) < lossPotential) denies++;
+            board[i] = EMPTY_CELL;
         }
-        return count;
+        score += doubles * TWO_IN_ROW;
+        score += denies * BLOCKED_OPPONENT;
+        return score;
     }
 
     public static int countPotentialWins(int[] board, int mark) {
@@ -295,7 +319,7 @@ public class Agent {
             return 0;
         }
         if (depth == MAXIMUM_DEPTH) {
-            return evaluateBoardScore(copy[previousBoard]);
+            return evaluateBoard(copy[previousBoard]);
         }
 
         if (mark == AGENT_MARK) {
@@ -303,7 +327,7 @@ public class Agent {
             for (int i = 1; i < 10; i++) {
                 if (copy[previousBoard][i] != EMPTY_CELL) continue;
 
-                //DEBUG STATEMENT
+                // DEBUG STATEMENT
                 // System.out.printf(
                 //     "%s\u001B[32mMAX - DEPTH: %s\u001B[0m -> AGENT MOVE " +
                 //     "local_boards[\u001B[33m%s\u001B[0m][\u001B[32m%s\u001B[0m]\n", tab, depth,
@@ -315,8 +339,9 @@ public class Agent {
                 copy[previousBoard][i] = EMPTY_CELL;
                 bestScore = Math.max(score, bestScore);
 
-                int local_alpha = Math.max(score, alpha);
-                if (beta <= local_alpha) break;
+                // TESTING MINIMAX FIRST
+                // int local_alpha = Math.max(score, alpha);
+                // if (beta <= local_alpha) break;
             }
             return bestScore;
         } else {
@@ -324,7 +349,7 @@ public class Agent {
             for (int i = 1; i < 10; i++) {
                 if (copy[previousBoard][i] != EMPTY_CELL) continue;
 
-                //DEBUG STATEMENT
+                // DEBUG STATEMENT
                 // System.out.printf(
                 //     "%s\u001B[32mMIN - DEPTH: %s\u001B[0m -> PLAYER MOVE " +
                 //     "local_boards[\u001B[33m%s\u001B[0m][\u001B[32m%s\u001B[0m]\n", tab, depth,
@@ -336,8 +361,9 @@ public class Agent {
                 copy[previousBoard][i] = EMPTY_CELL;
                 bestScore = Math.min(score, bestScore);
 
-                int local_beta = Math.min(score, beta);
-                if (local_beta <= alpha) break;
+                // TESTING MINIMAX FIRST
+                // int local_beta = Math.min(score, beta);
+                // if (local_beta <= alpha) break;
             }
             return bestScore;
         }
