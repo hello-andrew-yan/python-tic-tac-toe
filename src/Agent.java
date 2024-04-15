@@ -4,26 +4,23 @@
  *  COMP3411/9814 Artificial Intelligence
  *  CSE, UNSW
  */
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Random;
 import java.util.Arrays;
 
 public class Agent {
 
     static int global_previous = 0;
 
-    // TODO - Delete this later.
-    static Random rand = new Random();
-
     //////////////////////////////////////////////////////////
     //             UNSW UTILITY FUNCTION | IGNORE           //
     //////////////////////////////////////////////////////////
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String[] args) throws IOException {
         if (args.length < 2) {
             System.out.println("Usage: java Agent -p (port)");
             return;
@@ -144,20 +141,11 @@ public class Agent {
     //////////////////////////////////////////////////////////
 
     static int[][] global_boards = new int[10][10];
-
-    static final int[][] winningCombinations = {
-            {1, 2, 3}, {4, 5, 6}, {7, 8, 9},  // Horizontal
-            {1, 4, 7}, {2, 5, 8}, {3, 6, 9},  // Vertical
-            {1, 5, 9}, {3, 5, 7}              // Diagonal
-    };
-
     static final int EMPTY_CELL = 0;
     static final int AGENT_MARK = 1;
     static final int PLAYER_MARK = 2;
-
     static final int MINIMUM_SCORE = -1000000;
     static final int MAXIMUM_SCORE = 1000000;
-
     static final int MAXIMUM_DEPTH = 4;
 
     public static int findBestMove() {
@@ -214,6 +202,12 @@ public class Agent {
     //            DRAFT - FOR EVALUATION FUNCTION           //
     //////////////////////////////////////////////////////////
 
+    static final int[][] winningCombinations = {
+            {1, 2, 3}, {4, 5, 6}, {7, 8, 9},  // Horizontal
+            {1, 4, 7}, {2, 5, 8}, {3, 6, 9},  // Vertical
+            {1, 5, 9}, {3, 5, 7}              // Diagonal
+    };
+
     public static boolean checkWinner(int[] board, int mark) {
         // Iterate over the winning combinations
         for (int[] combo : winningCombinations) {
@@ -225,9 +219,35 @@ public class Agent {
         return false;
     }
 
-    //////////////////////////////////////////////////////////
-    //            DRAFT - FOR EVALUATION FUNCTION           //
-    //////////////////////////////////////////////////////////
+    public static boolean checkTie(int[] board) {
+        for (int i = 1; i < 10; i++) {
+            if (board[i] == EMPTY_CELL) return false;
+        }
+        return true;
+    }
+
+    static int MARK_COUNT_SCORE = 10;
+    static int NEAR_WIN_SCORE = 20;
+
+    public static int evaluateBoardScore(int[] board) {
+        int score = 0;
+
+        score += countMark(board, AGENT_MARK) * MARK_COUNT_SCORE;
+        score -= countMark(board, PLAYER_MARK) * MARK_COUNT_SCORE;
+
+        score += countPotentialWins(board, AGENT_MARK) * NEAR_WIN_SCORE;
+        score -= countPotentialWins(board, PLAYER_MARK) * NEAR_WIN_SCORE;
+
+        return score;
+    }
+
+    public static int countMark(int[] board, int mark) {
+        int count = 0;
+        for (int i = 1; i < 10; i++) {
+            if (board[1] == mark) count++;
+        }
+        return count;
+    }
 
     public static int countPotentialWins(int[] board, int mark) {
         int count = 0;
@@ -250,17 +270,6 @@ public class Agent {
     }
 
     //////////////////////////////////////////////////////////
-    //            DRAFT - FOR EVALUATION FUNCTION           //
-    //////////////////////////////////////////////////////////
-
-    public static boolean checkTie(int[] board) {
-        for (int i = 1; i < 10; i++) {
-            if (board[i] == EMPTY_CELL) return false;
-        }
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////
     //                 MINIMAX ALGORITHM                    //
     //////////////////////////////////////////////////////////
 
@@ -268,32 +277,25 @@ public class Agent {
         int[][] copy = copyBoard(boards);
 
         // HELPER INDENTATION FOR DEBUG STATEMENT
-        String tab = "";
-        for (int i = 0; i < depth; i++) tab += "\t";
+        StringBuilder tab = new StringBuilder();
+        tab.append("\t".repeat(Math.max(0, depth)));
 
         //////////////////////////////////////////////////////////
         //            DRAFT - FOR EVALUATION FUNCTION           //
         //////////////////////////////////////////////////////////
         if (checkWinner(copy[previousBoard], AGENT_MARK)) {
-            System.out.printf("\t\t=> \u001B[32mAGENT\u001B[0m\n");
+            System.out.print("\t\t=> \u001B[32mAGENT\u001B[0m\n");
             return 50 / depth;
         }
         if (checkWinner(copy[previousBoard], PLAYER_MARK)) {
-            System.out.printf("\t\t=> \u001B[32mPLAYER\u001B[0m\n");
+            System.out.print("\t\t=> \u001B[32mPLAYER\u001B[0m\n");
             return -50 / depth;
         }
         if (checkTie(copy[previousBoard])) {
             return 0;
         }
         if (depth == MAXIMUM_DEPTH) {
-            int agentWins = countPotentialWins(copy[previousBoard], AGENT_MARK);
-            int playerWins = countPotentialWins(copy[previousBoard], PLAYER_MARK);
-            int count = (agentWins - playerWins) * 50;
-
-            if (count > 0) {
-                //System.out.printf("\t\t=> \u001B[32mSCORE %s\u001B[0m\n", count);
-            }
-            return count;
+            return evaluateBoardScore(copy[previousBoard]);
         }
 
         if (mark == AGENT_MARK) {
