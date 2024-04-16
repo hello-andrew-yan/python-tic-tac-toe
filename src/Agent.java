@@ -234,42 +234,36 @@ public class Agent {
             0, 2, 0,
             1, 0, 1
     };
-    static int TWO_IN_ROW = 3;
-    static int THREE_IN_ROW = 5;
-    static int BLOCKED_OPPONENT = 4;
+    static int TWO_IN_ROW = 2;
+    static int THREE_IN_ROW = 20;
+    static int BLOCKED_OPPONENT = 6;
 
     // Assumes that the minimax algorithm's maximum
     // depth stops at the MAXIMISING agent, this function
     // evaluates how well this board is performing.
     public static int evaluateBoard(int[] board) {
+
+        // Gives a positive score for AGENT and negative score for PLAYER
         int score = 0;
+
         int winPotential = countPotentialWins(board, AGENT_MARK);
         int lossPotential = countPotentialWins(board, PLAYER_MARK);
 
-        // Agent has two in a row on the board, and has a high possibility of winning the scenario next turn.
         score += winPotential * THREE_IN_ROW;
-        // Player has two in a row on the board, and has a high possibility of winning the scenario next turn.
         score -= lossPotential * THREE_IN_ROW;
 
+        int playerBlocked = countBlocks(board, PLAYER_MARK);
+        int agentBlocked = countBlocks(board, AGENT_MARK);
 
-        int doubles = 0;
-        int denies = 0;
+        score += playerBlocked * BLOCKED_OPPONENT;
+        score -= agentBlocked * BLOCKED_OPPONENT;
+
         for (int i = 1; i < 10; i++) {
-            if (board[i] != EMPTY_CELL) continue;
-
-            // Positional Scores on the board.
-            score += POSITIONAL_SCORES[i];
-
-            board[i] = AGENT_MARK;
-            // Creating two in a row.
-            if (countPotentialWins(board, AGENT_MARK) > winPotential) doubles++;
-
-            // Blocking opponent wins.
-            if (countPotentialWins(board, PLAYER_MARK) < lossPotential) denies++;
-            board[i] = EMPTY_CELL;
+            // Positional score for each filled cell.
+            if (board[i] != EMPTY_CELL) {
+                score += POSITIONAL_SCORES[i] * (board[i] == AGENT_MARK ? 1 : -1);
+            }
         }
-        score += doubles * TWO_IN_ROW;
-        score += denies * BLOCKED_OPPONENT;
         return score;
     }
 
@@ -293,6 +287,27 @@ public class Agent {
         return count;
     }
 
+    // DRAFT EXPERIEMENTAL
+    public static int countBlocks(int[] board, int mark) {
+        int count = 0;
+        // Iterate over the winning combinations
+        for (int[] combo : winningCombinations) {
+            // (_ X X) CHECKS
+            if ((board[combo[0]] != mark || board[combo[0]] != EMPTY_CELL) && board[combo[1]] == mark && board[combo[2]] == mark) {
+                count++;
+            }
+            // (X _ X) CHECKS
+            if (board[combo[0]] == mark && (board[combo[1]] != mark || board[combo[1]] != EMPTY_CELL) && board[combo[2]] == mark) {
+                count++;
+            }
+            // (X X _) CHECKS
+            if (board[combo[0]] == mark && board[combo[1]] == mark && (board[combo[2]] != mark || board[combo[2]] != EMPTY_CELL)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     //////////////////////////////////////////////////////////
     //                 MINIMAX ALGORITHM                    //
     //////////////////////////////////////////////////////////
@@ -308,12 +323,12 @@ public class Agent {
         //            DRAFT - FOR EVALUATION FUNCTION           //
         //////////////////////////////////////////////////////////
         if (checkWinner(copy[previousBoard], AGENT_MARK)) {
-            System.out.print("\t\t=> \u001B[32mAGENT\u001B[0m\n");
-            return 50 / depth;
+            // System.out.print("\t\t=> \u001B[32mAGENT\u001B[0m\n");
+            return MAXIMUM_SCORE;
         }
         if (checkWinner(copy[previousBoard], PLAYER_MARK)) {
-            System.out.print("\t\t=> \u001B[32mPLAYER\u001B[0m\n");
-            return -50 / depth;
+            // System.out.print("\t\t=> \u001B[32mPLAYER\u001B[0m\n");
+            return MINIMUM_SCORE;
         }
         if (checkTie(copy[previousBoard])) {
             return 0;
@@ -369,3 +384,4 @@ public class Agent {
         }
     }
 }
+ 
