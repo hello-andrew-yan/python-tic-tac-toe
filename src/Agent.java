@@ -146,7 +146,7 @@ public class Agent {
     static final int PLAYER_MARK = 2;
     static final int MINIMUM_SCORE = -1000000;
     static final int MAXIMUM_SCORE = 1000000;
-    static final int MAXIMUM_DEPTH = 4;
+    static final int MAXIMUM_DEPTH = 2;
 
     public static int findBestMove() {
         int bestScore = MINIMUM_SCORE;
@@ -384,4 +384,3 @@ public class Agent {
         }
     }
 }
- 
