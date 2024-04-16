@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <winsock2.h>
-#include <windows.h>  
+#include <sys/socket.h>
+#include <arpa/inet.h> 
 #include <netinet/tcp.h>
 #include <unistd.h>
 
