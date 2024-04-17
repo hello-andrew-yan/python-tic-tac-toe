@@ -167,8 +167,9 @@ public class Robot {
             // The first layer of the Minimax Algorithm is called here, next is players turn.
             copiedBoards[previous_board][i] = AGENT_MARK;
 
-            System.out.printf("Depth = \u001B[32m0\u001B[0m\n");
-            printBoard(copiedBoards[previous_board]);
+            // DEBUG
+            // System.out.printf("Depth = \u001B[32m0\u001B[0m\n");
+            // printBoard(copiedBoards[previous_board]);
 
             int score = negamax(copiedBoards, i, STARTING_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, -1);
             copiedBoards[previous_board][i] = EMPTY_CELL;
@@ -187,7 +188,9 @@ public class Robot {
     //////////////////////////////////////////////////////////
 
     static int STARTING_DEPTH = 0;
-    static int MAXIMUM_DEPTH = 3;
+
+    // Odd / Even depth might affect the favoured outcome??
+    static int MAXIMUM_DEPTH = 5;
 
     public static int negamax(int[][] boards, int next_board, int depth, int alpha, int beta, int colour) {
 
@@ -220,15 +223,15 @@ public class Robot {
             copiedBoards[next_board][i] = mark;
 
             // DEBUG
-            System.out.printf("Depth = " + (colour == 1 ? "\u001B[32m" : "\u001B[31m") + "%s\u001B[0m\n", depth + 1);
-            printBoard(copiedBoards[next_board]);
+            // System.out.printf("Depth = " + (colour == 1 ? "\u001B[32m" : "\u001B[31m") + "%s\u001B[0m\n", depth + 1);
+            // printBoard(copiedBoards[next_board]);
 
             int score = -negamax(copiedBoards, i, depth + 1, -beta, -alpha, -colour);
 
             // DEBUG
-            System.out.println("  V");
-            printBoard(copiedBoards[i]);
-            System.out.printf("  = " + (score >= 0 ? "\u001B[32m" : "\u001B[31m") + "%s FOR AGENT\u001B[0m\n\n", score);
+            // System.out.println("  V");
+            // printBoard(copiedBoards[i]);
+            // System.out.printf("  = " + (score >= 0 ? "\u001B[32m" : "\u001B[31m") + "%s FOR AGENT\u001B[0m\n\n", score);
 
             copiedBoards[next_board][i] = EMPTY_CELL;
 
@@ -294,13 +297,11 @@ public class Robot {
 
         // Opponent holds one position, opponent may also have a positional advantage.
         if (currentPlacements == 0 && opponentPlacements == 1) {
-            System.out.println("Player single");
             return -1 * positionalBonus;
         }
 
         // Current holds one position, current may also have a positional advantage.
         if (currentPlacements == 1 && opponentPlacements == 0) {
-            System.out.println("Agent single");
             return 1 * positionalBonus;
         }
 
