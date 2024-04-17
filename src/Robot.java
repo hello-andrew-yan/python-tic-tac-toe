@@ -1,10 +1,13 @@
-
-/*********************************************************
- *  Agent.java
- *  Nine-Board Tic-Tac-Toe Agent
- *  COMP3411/9814 Artificial Intelligence
- *  CSE, UNSW
- */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//																													  //
+//  									[			Agent.java				]										  //
+// 																													  //
+//  										Nine-Board Tic-Tac-Toe Agent											  //
+//  									COMP3411/9814 Artificial Intelligence										  //
+// 																													  //
+//  									[ 			 CSE, UNSW				]										  //
+//																													  //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,9 +25,9 @@ public class Robot {
     static final int AGENT_MARK = 1;
     static final int PLAYER_MARK = 2;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                      UNSW UTILITY FUNCTION | IGNORE                                                //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                      UNSW UTILITY FUNCTION | IGNORE                                                //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
@@ -125,9 +128,9 @@ public class Robot {
         boards[board][index] = mark;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                          I M P L E M E N T A T I O N                                               //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                          I M P L E M E N T A T I O N                                               //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static int play() {
         int bestMove = findBestMove();
@@ -161,11 +164,10 @@ public class Robot {
             // Skips cells that already have values set
             if (copiedBoards[previous_board][i] != EMPTY_CELL) continue;
 
-            // The first layer of the Minimax Algorithm is called here, next is players turn indexed at 0
+            // The first layer of the Minimax Algorithm is called here, next is players turn.
             copiedBoards[previous_board][i] = AGENT_MARK;
 
-            // DEBUG STATEMENT
-            System.out.println("Depth = \u001B[32m0\u001B[0m");
+            System.out.printf("Depth = \u001B[32m0\u001B[0m\n");
             printBoard(copiedBoards[previous_board]);
 
             int score = negamax(copiedBoards, i, STARTING_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, -1);
@@ -185,53 +187,52 @@ public class Robot {
     //////////////////////////////////////////////////////////
 
     static int STARTING_DEPTH = 0;
-    static int MAXIMUM_DEPTH = 1;
+    static int MAXIMUM_DEPTH = 3;
 
-    public static int negamax(int[][] boards, int previous_board, int depth, int alpha, int beta, int colour) {
-        /*
-         * Evaluation statements and functions here
-         * ---------------------------------------------
-         * if (depth = 0 or node is a terminal node) {
-         * return the heuristic value of node
-         * }
-         * ---------------------------------------------
-         * Evauluation function is multiplied by the colour.
-         */
+    public static int negamax(int[][] boards, int next_board, int depth, int alpha, int beta, int colour) {
 
         int mark = colour == 1 ? AGENT_MARK : PLAYER_MARK;
         int[][] copiedBoards = copyBoards(boards);
 
+        // Early detections of wins scaled by the depth.
+        if (isWinning(copiedBoards[next_board], mark)) return (colour * 1000000) * (MAXIMUM_DEPTH + 1 - depth);
 
-        // Terminal States of the negamax algorithm
-        if (isWinning(copiedBoards[previous_board], mark)) {
-            // TEMPORARY RETURN
-            return 100000 + (MAXIMUM_DEPTH / depth + 1);
-        }
+        // Early detection of ties.
+        if (isTied(copiedBoards[next_board])) return 1000;
+
         if (depth == MAXIMUM_DEPTH) {
-            return evaluateBoard(copiedBoards[previous_board], colour);
+            // Returns the score of the entire board back to higher depths.
+            int score = 0;
+            for (int i = 1; i < 10; i++) {
+                score += evaluateBoard(copiedBoards[i], mark);
+            }
+            return score * -colour;
         }
+
+        //////////////////////////////////////////////////////////
 
         int bestScore = Integer.MIN_VALUE;
-
         // Iterations must be indexed at 1 - 9.
         for (int i = 1; i < 10; i++) {
             // Skips cells that already have values set
-            if (copiedBoards[previous_board][i] != EMPTY_CELL) continue;
+            if (copiedBoards[next_board][i] != EMPTY_CELL) continue;
 
-            copiedBoards[previous_board][i] = mark;
+            copiedBoards[next_board][i] = mark;
 
-            // DEBUG STATEMENT
+            // DEBUG
             System.out.printf("Depth = " + (colour == 1 ? "\u001B[32m" : "\u001B[31m") + "%s\u001B[0m\n", depth + 1);
-            printBoard(copiedBoards[previous_board]);
+            printBoard(copiedBoards[next_board]);
 
             int score = -negamax(copiedBoards, i, depth + 1, -beta, -alpha, -colour);
-            copiedBoards[previous_board][i] = EMPTY_CELL;
+
+            // DEBUG
+            System.out.println("  V");
+            printBoard(copiedBoards[i]);
+            System.out.printf("  = " + (score >= 0 ? "\u001B[32m" : "\u001B[31m") + "%s FOR AGENT\u001B[0m\n\n", score);
+
+            copiedBoards[next_board][i] = EMPTY_CELL;
 
             bestScore = Math.max(score, bestScore);
-
-            // Alpha-Beta Pruning
-            // alpha = max(score, localAlpha)
-            // if (alpha >= beta) break;
         }
         return bestScore;
     }
@@ -240,19 +241,87 @@ public class Robot {
     //                EVAULATION FUNCTION                   //
     //////////////////////////////////////////////////////////
 
+    // Evaluates how optimal the board is for the AGENT.
+
+    /**
+     * Heuristic is based on how many advantageous positions
+     * the agent has on the board. These include having two in
+     * a rows and having an advantageous position on the board.
+     *
+     * The reason why three in a rows are not considered is that
+     * the negamax algorithm already has a terminal condition to
+     * detect that already.
+     */
     public static int evaluateBoard(int[] board, int mark) {
-        return 1;
+        int score = 0;
+        for (int i = 0; i < 8; i++) score += calculatePositionalScore(board, WINNING_COMBINATIONS[i], mark);
+        return score;
     }
+
+    public static int calculatePositionalScore(int[] board, int[] sequence, int mark) {
+        // Validation checking for correct Tic-Tac-Toe sequences.
+        if (sequence.length < 3) return 0;
+
+        int opponent = mark == AGENT_MARK ? PLAYER_MARK : AGENT_MARK;
+
+        int currentPlacements = 0;
+        int opponentPlacements = 0;
+        int positionalBonus = 1;
+
+        for (int i = 0; i < 3; i++) {
+            if (board[sequence[i]] == mark) currentPlacements++;
+            if (board[sequence[i]] == opponent) opponentPlacements++;
+            if (board[sequence[i]] != EMPTY_CELL) {
+                positionalBonus *= POSITIONAL_SCORES[sequence[i]];
+            }
+        }
+
+        // Opponent wins.
+        if (opponentPlacements == 3) return -1000 * positionalBonus;
+
+        // Current wins.
+        if (currentPlacements == 3) return 1000 * positionalBonus;
+
+        // Opponent has a two in a row, opponent may also have a positional advantage.
+        if (currentPlacements == 0 && opponentPlacements == 2) {
+            return -30 * positionalBonus;
+        }
+
+        // Current has a two in a row, current may also have a positional advantage.
+        if (currentPlacements == 2 && opponentPlacements == 0) {
+            return 30 * positionalBonus;
+        }
+
+        // Opponent holds one position, opponent may also have a positional advantage.
+        if (currentPlacements == 0 && opponentPlacements == 1) {
+            System.out.println("Player single");
+            return -1 * positionalBonus;
+        }
+
+        // Current holds one position, current may also have a positional advantage.
+        if (currentPlacements == 1 && opponentPlacements == 0) {
+            System.out.println("Agent single");
+            return 1 * positionalBonus;
+        }
+
+        // Neutral position.
+        return 0;
+    }
+
+
 
     //////////////////////////////////////////////////////////
     //                  UTILITY FUNCTIONS                   //
     //////////////////////////////////////////////////////////
 
-    public static int[][] copyBoards(int[][] original) {
-        return Arrays.stream(original).map(int[]::clone).toArray(int[][]::new);
-    }
+    // Center square and corner squares are more valuable.
+    static int[] POSITIONAL_SCORES = {-1,
+            2, 1, 2,
+            1, 5, 1,
+            2, 1, 2
+    };
 
-    static final int[][] winningCombinations = {
+    static final int[][] WINNING_COMBINATIONS = {
             {1, 2, 3}, {4, 5, 6}, {7, 8, 9},  // Horizontal
             {1, 4, 7}, {2, 5, 8}, {3, 6, 9},  // Vertical
             {1, 5, 9}, {3, 5, 7}              // Diagonal
@@ -260,13 +329,56 @@ public class Robot {
 
     public static boolean isWinning(int[] board, int mark) {
         // Iterate over the winning combinations
-        for (int[] combo : winningCombinations) {
+        for (int[] combo : WINNING_COMBINATIONS) {
             // Check if the values at the positions in the combo are the same and not empty.
             if (board[combo[0]] == mark && board[combo[1]] == mark && board[combo[2]] == mark) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static boolean isTied(int[] board) {
+        for (int i = 1; i < 10; i++) if (board[i] == EMPTY_CELL) return false;
+        return true;
+    }
+
+    public static int countDoubles(int[] board, int mark) {
+        int count = 0;
+        // Iterate over the winning combinations
+        for (int[] combo : WINNING_COMBINATIONS) {
+            // (_ X X) CHECKS
+            if (board[combo[0]] == EMPTY_CELL && board[combo[1]] == mark && board[combo[2]] == mark) count++;
+
+            // (X _ X) CHECKS
+            if (board[combo[0]] == mark && board[combo[1]] == EMPTY_CELL && board[combo[2]] == mark) count++;
+
+            // (X X _) CHECKS
+            if (board[combo[0]] == mark && board[combo[1]] == mark && board[combo[2]] == EMPTY_CELL) count++;
+        }
+        return count;
+    }
+
+
+    // Might be able to merge functionality with countWinningOpportunities(...) and avoid duplicates.
+    public static int countSingles(int[] board, int mark) {
+        int count = 0;
+        // Iterate over the winning combinations
+        for (int[] combo : WINNING_COMBINATIONS) {
+            // (X _ _) CHECKS
+            if (board[combo[0]] == mark && board[combo[1]] == EMPTY_CELL && board[combo[2]] == EMPTY_CELL) count++;
+
+            // (_ X _) CHECKS
+            if (board[combo[0]] == EMPTY_CELL && board[combo[1]] == mark && board[combo[2]] == EMPTY_CELL) count++;
+
+            // (_ _ X) CHECKS
+            if (board[combo[0]] == EMPTY_CELL && board[combo[1]] == EMPTY_CELL && board[combo[2]] == mark) count++;
+        }
+        return count;
+    }
+
+    public static int[][] copyBoards(int[][] original) {
+        return Arrays.stream(original).map(int[]::clone).toArray(int[][]::new);
     }
 
     //////////////////////////////////////////////////////////
@@ -290,4 +402,16 @@ public class Robot {
             System.out.print("------\n");
         }
     }
+
+	/*
+		DEBUG STATEMENTS
+
+		System.out.println("Depth = \u001B[32m0\u001B[0m");
+		printBoard(copiedBoards[previous_board]);
+
+		System.out.println("--- VVV ---");
+		printBoard(copiedBoards[i]);
+		System.out.printf("  = " + (-colour == 1 ? "\u001B[32m" : "\u001B[31m") + "%s\u001B[0m\n\n", score);
+
+	 */
 }
