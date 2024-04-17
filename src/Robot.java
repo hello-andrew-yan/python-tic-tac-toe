@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 public class Robot {
 
-    static int[][] boards = new int[10][10];
+    static final int[][] boards = new int[10][10];
     static int previous_board = 0;
 
     static final int EMPTY_CELL = 0;
@@ -164,13 +164,14 @@ public class Robot {
             // Skips cells that already have values set
             if (copiedBoards[previous_board][i] != EMPTY_CELL) continue;
 
-            // The first layer of the Minimax Algorithm is called here, next is players turn.
+            // The first layer of the Negamax Algorithm is called here, committing agent moves before checking player moves.
             copiedBoards[previous_board][i] = AGENT_MARK;
 
             // DEBUG
             // System.out.printf("Depth = \u001B[32m0\u001B[0m\n");
             // printBoard(copiedBoards[previous_board]);
 
+            // "-1" means the colour parameter representing the player's move.
             int score = negamax(copiedBoards, i, STARTING_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, -1);
             copiedBoards[previous_board][i] = EMPTY_CELL;
 
@@ -187,10 +188,10 @@ public class Robot {
     //                 NEGAMAX ALGORITHM                    //
     //////////////////////////////////////////////////////////
 
-    static int STARTING_DEPTH = 0;
+    static final int STARTING_DEPTH = 0;
 
     // Odd / Even depth might affect the favoured outcome??
-    static int MAXIMUM_DEPTH = 5;
+    static final int MAXIMUM_DEPTH = 5;
 
     public static int negamax(int[][] boards, int next_board, int depth, int alpha, int beta, int colour) {
 
@@ -209,10 +210,8 @@ public class Robot {
             for (int i = 1; i < 10; i++) {
                 score += evaluateBoard(copiedBoards[i], mark);
             }
-            return score * -colour;
+            return colour * score;
         }
-
-        //////////////////////////////////////////////////////////
 
         int bestScore = Integer.MIN_VALUE;
         // Iterations must be indexed at 1 - 9.
@@ -231,11 +230,17 @@ public class Robot {
             // DEBUG
             // System.out.println("  V");
             // printBoard(copiedBoards[i]);
-            // System.out.printf("  = " + (score >= 0 ? "\u001B[32m" : "\u001B[31m") + "%s FOR AGENT\u001B[0m\n\n", score);
+            // System.out.printf("  = " + (-score >= 0 ? "\u001B[32m" : "\u001B[31m") + "%s FOR AGENT\u001B[0m\n\n", -score);
 
             copiedBoards[next_board][i] = EMPTY_CELL;
 
             bestScore = Math.max(score, bestScore);
+
+            // Alpa-Beta Pruning (Comment out during functionality testing)
+            alpha = Math.max(alpha, score);
+            if (alpha >= beta) {
+                break;
+            }
         }
         return bestScore;
     }
@@ -274,6 +279,8 @@ public class Robot {
         for (int i = 0; i < 3; i++) {
             if (board[sequence[i]] == mark) currentPlacements++;
             if (board[sequence[i]] == opponent) opponentPlacements++;
+
+            // Positional advantage.
             if (board[sequence[i]] != EMPTY_CELL) {
                 positionalBonus *= POSITIONAL_SCORES[sequence[i]];
             }
@@ -316,7 +323,7 @@ public class Robot {
     //////////////////////////////////////////////////////////
 
     // Center square and corner squares are more valuable.
-    static int[] POSITIONAL_SCORES = {-1,
+    static final int[] POSITIONAL_SCORES = {-1,
             2, 1, 2,
             1, 5, 1,
             2, 1, 2
@@ -403,16 +410,4 @@ public class Robot {
             System.out.print("------\n");
         }
     }
-
-	/*
-		DEBUG STATEMENTS
-
-		System.out.println("Depth = \u001B[32m0\u001B[0m");
-		printBoard(copiedBoards[previous_board]);
-
-		System.out.println("--- VVV ---");
-		printBoard(copiedBoards[i]);
-		System.out.printf("  = " + (-colour == 1 ? "\u001B[32m" : "\u001B[31m") + "%s\u001B[0m\n\n", score);
-
-	 */
 }
