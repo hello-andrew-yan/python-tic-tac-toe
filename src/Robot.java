@@ -171,8 +171,7 @@ public class Robot {
             // System.out.printf("Depth = \u001B[32m0\u001B[0m\n");
             // printBoard(copiedBoards[previous_board]);
 
-            // "-1" means the colour parameter representing the player's move.
-            int score = negamax(copiedBoards, i, STARTING_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, -1);
+            int score = negamax(copiedBoards, i, STARTING_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, PLAYER_MARK);
             copiedBoards[previous_board][i] = EMPTY_CELL;
 
             if (score > bestScore) {
@@ -189,17 +188,14 @@ public class Robot {
     //////////////////////////////////////////////////////////
 
     static final int STARTING_DEPTH = 0;
+    static final int MAXIMUM_DEPTH = 7;
 
-    // Odd / Even depth might affect the favoured outcome??
-    static final int MAXIMUM_DEPTH = 5;
+    public static int negamax(int[][] boards, int next_board, int depth, int alpha, int beta, int mark) {
 
-    public static int negamax(int[][] boards, int next_board, int depth, int alpha, int beta, int colour) {
-
-        int mark = colour == 1 ? AGENT_MARK : PLAYER_MARK;
         int[][] copiedBoards = copyBoards(boards);
 
         // Early detections of wins scaled by the depth.
-        if (isWinning(copiedBoards[next_board], mark)) return (colour * 1000000) * (MAXIMUM_DEPTH + 1 - depth);
+        if (isWinning(copiedBoards[next_board], mark)) return -1000000 * (MAXIMUM_DEPTH + 1 - depth);
 
         // Early detection of ties.
         if (isTied(copiedBoards[next_board])) return 1000;
@@ -208,9 +204,17 @@ public class Robot {
             // Returns the score of the entire board back to higher depths.
             int score = 0;
             for (int i = 1; i < 10; i++) {
+                /*
+                 * 	  "Negamax can be implemented without the color parameter. In this case, the heuristic
+                 * evaluation function must return values from the point of view of the node's current player"
+                 *
+                 * 						https://en.wikipedia.org/wiki/Negamax
+                 *
+                 * This is why "mark" is being used as a parameter in the evaluateBoard(...) function.
+                 */
                 score += evaluateBoard(copiedBoards[i], mark);
             }
-            return colour * score;
+            return -score;
         }
 
         int bestScore = Integer.MIN_VALUE;
@@ -222,15 +226,18 @@ public class Robot {
             copiedBoards[next_board][i] = mark;
 
             // DEBUG
-            // System.out.printf("Depth = " + (colour == 1 ? "\u001B[32m" : "\u001B[31m") + "%s\u001B[0m\n", depth + 1);
+            // System.out.printf("Depth = \u001B[32m%s\u001B[0m\n", depth + 1);
             // printBoard(copiedBoards[next_board]);
 
-            int score = -negamax(copiedBoards, i, depth + 1, -beta, -alpha, -colour);
+            int score = -negamax(copiedBoards, i, depth + 1, -beta, -alpha, mark == AGENT_MARK ? PLAYER_MARK : AGENT_MARK);
+
 
             // DEBUG
-            // System.out.println("  V");
-            // printBoard(copiedBoards[i]);
+            // System.out.printf(" v\n");
+            // // printBoard(copiedBoards[i]);
+            // printBoards(copiedBoards);
             // System.out.printf("  = " + (-score >= 0 ? "\u001B[32m" : "\u001B[31m") + "%s FOR AGENT\u001B[0m\n\n", -score);
+
 
             copiedBoards[next_board][i] = EMPTY_CELL;
 
@@ -262,7 +269,7 @@ public class Robot {
      */
     public static int evaluateBoard(int[] board, int mark) {
         int score = 0;
-        for (int i = 0; i < 8; i++) score += calculatePositionalScore(board, WINNING_COMBINATIONS[i], mark);
+        for (int[] combos : WINNING_COMBINATIONS) score += calculatePositionalScore(board, combos, mark);
         return score;
     }
 
