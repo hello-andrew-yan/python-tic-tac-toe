@@ -246,6 +246,8 @@ public class Machine {
      * the negamax algorithm already has a terminal condition to
      * detect that already.
      */
+    //////////////////////////////////////////////////////////
+
     public static int evaluateBoard(int[] board) {
         int score = 0;
         for (int[] combos : WINNING_COMBINATIONS) score += calculatePositionalScore(board, combos);
