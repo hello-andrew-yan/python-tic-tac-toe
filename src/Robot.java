@@ -132,7 +132,14 @@ public class Robot {
 //                                          I M P L E M E N T A T I O N                                               //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    static int plays = 0;
+    static int activeDepth = 5;
+
     public static int play() {
+        plays++;
+        if (plays % 3 == 0 && activeDepth < MAXIMUM_DEPTH) {
+            activeDepth++;
+        }
         int bestMove = findBestMove();
         place(previous_board, bestMove, AGENT_MARK);
 
@@ -188,19 +195,19 @@ public class Robot {
     //////////////////////////////////////////////////////////
 
     static final int STARTING_DEPTH = 0;
-    static final int MAXIMUM_DEPTH = 7;
+    static final int MAXIMUM_DEPTH = 15;
 
     public static int negamax(int[][] boards, int next_board, int depth, int alpha, int beta, int mark) {
 
         int[][] copiedBoards = copyBoards(boards);
 
         // Early detections of wins scaled by the depth.
-        if (isWinning(copiedBoards[next_board], mark)) return -1000000 * (MAXIMUM_DEPTH + 1 - depth);
+        if (isWinning(copiedBoards[next_board], mark)) return -(1000000 * (MAXIMUM_DEPTH + 1 - depth));
 
         // Early detection of ties.
         if (isTied(copiedBoards[next_board])) return 1000;
 
-        if (depth == MAXIMUM_DEPTH) {
+        if (depth == activeDepth) {
             // Returns the score of the entire board back to higher depths.
             int score = 0;
             for (int i = 1; i < 10; i++) {
