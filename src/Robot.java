@@ -133,7 +133,7 @@ public class Robot {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     static int plays = 0;
-    static int activeDepth = 5;
+    static int activeDepth = 8;
 
     public static int play() {
         plays++;
@@ -202,7 +202,7 @@ public class Robot {
         int[][] copiedBoards = copyBoards(boards);
 
         // Early detections of wins scaled by the depth.
-        if (isWinning(copiedBoards[next_board], mark)) return -(1000000 * (MAXIMUM_DEPTH + 1 - depth));
+        if (isWinning(copiedBoards[next_board], mark)) return (1000000 * (MAXIMUM_DEPTH + 1 - depth));
 
         // Early detection of ties.
         if (isTied(copiedBoards[next_board])) return 1000;
@@ -221,7 +221,7 @@ public class Robot {
                  */
                 score += evaluateBoard(copiedBoards[i], mark);
             }
-            return -score;
+            return score;
         }
 
         int bestScore = Integer.MIN_VALUE;
