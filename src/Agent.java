@@ -11,15 +11,9 @@
 
 /* //////////////////////////////////////////////////////////
  * //               Andrew Yan | z5418971                  //
- * //             Nathan Smith | z5416774                  //
+ * //             Nathan Smith | z5416884                  //
  * //////////////////////////////////////////////////////////
- * 
- * Briefly describe how your program works, including any
- * algorithms and data structures employed, and explain
- *   any design decisions you made along the way.
  *
- * 
- * 
  * Everything past the "IMPLEMENTATION" banner is what we
  * have implemented in playing a game of 9-Board Tic-Tac-Toe.
  *
@@ -27,7 +21,7 @@
  * //                      ALGORITHM                       //
  * //////////////////////////////////////////////////////////
  * 
- * Our AI agent employs  Alpha-Beta pruning within the Minimax algorithm. 
+ * Our AI agent employs Alpha-Beta pruning within the Minimax algorithm. 
  * It performs a depth-limited search to recursively evaluate possible moves
  * within each board iteration. Each move is assigned a score based on a 
  * series of evaluation functions and terminal states. 
@@ -42,12 +36,12 @@
  * //                  EVALUATION FUNCTION                 //
  * //////////////////////////////////////////////////////////
  * 
- * When the depth limit is reached hitting 0 from 8, the entire game board 
+ * When the depth limit of 8 is reached hitting, the entire game board 
  * is evaluated. Each of the 9 boards is assessed for its advantage to the 
  * agent using a predefined scoring system. 
  * 
  * We've predefined the possible win positions in Tic-Tac-Toe, such as horizontal 
- * rows {1, 2, 3}, and iterate through these sequences to calculate a score for 
+ * rows {1, 2, 3}, and then iterate through these sequences to calculate a score for 
  * each board. The score is determined based on the presence of agent marks (1) 
  * or opponent marks (2) within these positions. For example, two agent marks 
  * in a row (O O _) receive a high score of 30 assuming the last cell is empty, 
