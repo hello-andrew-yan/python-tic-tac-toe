@@ -15,8 +15,51 @@
  * algorithms and data structures employed, and explain
  *   any design decisions you made along the way.
  *
+ * Everything past the "IMPLEMENTATION" banner is what we
+ * have implemented in playing a game of 9-Board Tic-Tac-Toe.
  *
+ * //////////////////////////////////////////////////////////
+ * //                      ALGORITHM                       //
+ * //////////////////////////////////////////////////////////
  *
+ * Our AI agent uses Alpha-Beta pruning on the Minimax
+ * algorithm, recursively evaluating possible moves every board
+ * using a depth-limited search. It assigns scores to each move
+ * based on a series of evaluation functions and terminal states
+ * in our algorithm.
+ *
+ * If an early win is detected for our Agent we return a large
+ * positive number and a large negative number if the win is
+ * detected for the Player instead. This ensures our Agent will
+ * maximise the moves that guarantee an early win before hitting
+ * the depth limit.
+ *
+ * //////////////////////////////////////////////////////////
+ * //                  EVALUATION FUNCTION                 //
+ * //////////////////////////////////////////////////////////
+ *
+ * If the depth limit does reach 0 from 8, we will evaluate the entire
+ * board and return a scoring based on how advantageous the current state
+ * of all 9 boards are to the agent. The evaluation of each board is
+ * evaluated as follows:
+ *
+ * We have stored as a constant the sequence of possible win positions
+ * in a game of Tic-Tac-Toe, (Example being {1, 2, 3}, horizontal row 1)
+ * and iterate through each of them against a scoring function. Depending
+ * on which mark is within those indexes in the board, i.e AGENT = 1 or
+ * PLAYER = 2, do we return a positive negative number representing how
+ * advantageous the board is to the AGENT. We return large scores of 30 for
+ * two in a rows (O O _) assuming the rest are empty, a medium score of
+ * 15 for how many two in a rows are blocked (X, X, O), and a value of 1
+ * for single marks in a row (X _ _) assuming the rest are empty. These
+ * are finally scaled by another constant representing a scoring based
+ * on the position on the board, where corners giving an additional value
+ * of x2, and the center giving an additional value of x5.
+ *
+ * With this in mind, the evaluation function returns the sum of these
+ * win positions for a particular board. Finally in the minimax function,
+ * the scores are summed for the entire 9 boards of the game to get a solid
+ * scoring of how optimal the game is from the point of view of the agent.
  */
 
 
