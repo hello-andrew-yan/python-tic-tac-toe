@@ -191,9 +191,9 @@ public class Machine {
     public static int minimax(int [][] boards, int nextBoard, int depth, int alpha, int beta, boolean isMax) {
         int[][] copiedBoards = copyBoards(boards);
 
-        if (isWinning(copiedBoards[nextBoard], AGENT_MARK)) return 10000 * (STARTING_DEPTH + 1 - depth);
+        if (isWinning(copiedBoards[nextBoard], AGENT_MARK)) return 10000 * (depth + 1);
 
-        if (isWinning(copiedBoards[nextBoard], PLAYER_MARK)) return -10000 * (STARTING_DEPTH + 1 - depth);
+        if (isWinning(copiedBoards[nextBoard], PLAYER_MARK)) return -10000 * (depth + 1);
 
         // Experimental return for ties
         if (isTied(copiedBoards[nextBoard])) return 1000;
