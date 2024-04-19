@@ -1,13 +1,24 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//																													  //
-//  									[			Agent.java				]										  //
-// 																													  //
-//  										Nine-Board Tic-Tac-Toe Agent											  //
-//  									COMP3411/9814 Artificial Intelligence										  //
-// 																													  //
-//  									[ 			 CSE, UNSW				]										  //
-//																													  //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//														//
+//  				  Agent.java						//
+//														//
+//  		  Nine-Board Tic-Tac-Toe Agent				//
+//  	 COMP3411/9814 Artificial Intelligence			//
+// 														//
+//  	 			  CSE, UNSW							//
+//														//
+//////////////////////////////////////////////////////////
+
+
+/*
+ * Briefly describe how your program works, including any
+ * algorithms and data structures employed, and explain
+ *   any design decisions you made along the way.
+ *
+ *
+ *
+ */
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,9 +32,9 @@ public class Machine {
     static final int[][] boards = new int[10][10];
     static int previousboard = 0;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 											UNSW UTILITY FUNCTION | IGNORE 											  //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // 					 UNSW FUNCTION 						//
+    //////////////////////////////////////////////////////////
 
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
@@ -129,9 +140,9 @@ public class Machine {
         boards[board][index] = mark;
     }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//											 I M P L E M E N T A T I O N 											  //
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // 					IMPLEMENTATION 						//
+    //////////////////////////////////////////////////////////
 
     public static int play() {
         int bestMove = findBestMove();
@@ -158,7 +169,7 @@ public class Machine {
     static final int AGENT_MARK = 1;
     static final int PLAYER_MARK = 2;
 
-    static final int STARTING_DEPTH = 5;
+    static final int STARTING_DEPTH = 8;
 
     public static int findBestMove() {
 
@@ -170,9 +181,9 @@ public class Machine {
             if (copiedBoards[previousboard][i] != EMPTY_CELL) continue;
 
             // Same format will be used in the minimax algorithm.
-            copiedBoards[previousboard][i] = AGENT_MARK;
-            int score = minimax(copiedBoards, i, STARTING_DEPTH, false);
-            copiedBoards[previousboard][i] = EMPTY_CELL;
+            // copiedBoards[previousboard][i] = AGENT_MARK;
+            int score = minimax(copiedBoards, previousboard, STARTING_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+            // copiedBoards[previousboard][i] = EMPTY_CELL;
 
             if (score > bestScore) {
                 bestScore = score;
@@ -186,7 +197,7 @@ public class Machine {
     // 					MINIMAX ALGORITHM					//
     //////////////////////////////////////////////////////////
 
-    public static int minimax(int [][] boards, int nextBoard, int depth, boolean isMax) {
+    public static int minimax(int [][] boards, int nextBoard, int depth, int alpha, int beta, boolean isMax) {
         int[][] copiedBoards = copyBoards(boards);
 
         if (isWinning(copiedBoards[nextBoard], AGENT_MARK)) return 10000 * (depth + 1);
@@ -209,8 +220,11 @@ public class Machine {
                 if (copiedBoards[nextBoard][i] != EMPTY_CELL) continue;
 
                 copiedBoards[nextBoard][i] = AGENT_MARK;
-                score = Math.max(score, minimax(copiedBoards, i, depth - 1, false));
+                score = Math.max(score, minimax(copiedBoards, i, depth - 1, alpha, beta, false));
                 copiedBoards[nextBoard][i] = EMPTY_CELL;
+
+                alpha = Math.max(alpha, score);
+                if (beta <= alpha) break;
             }
             return score;
         } else {
@@ -219,8 +233,11 @@ public class Machine {
                 if (copiedBoards[nextBoard][i] != EMPTY_CELL) continue;
 
                 copiedBoards[nextBoard][i] = AGENT_MARK;
-                score = Math.min(score, minimax(copiedBoards, i, depth - 1, true));
+                score = Math.min(score, minimax(copiedBoards, i, depth - 1, alpha, beta, true));
                 copiedBoards[nextBoard][i] = EMPTY_CELL;
+
+                beta = Math.min(beta, score);
+                if (beta <= alpha) break;
             }
             return score;
         }
