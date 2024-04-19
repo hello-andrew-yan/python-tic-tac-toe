@@ -158,9 +158,7 @@ public class Machine {
     static final int AGENT_MARK = 1;
     static final int PLAYER_MARK = 2;
 
-    static final int STARTING_DEPTH = 15;
-    static final int MINIMUM_SCORE = -900000;
-    static final int MAXIMUM_SCORE = 900000;
+    static final int STARTING_DEPTH = 5;
 
     public static int findBestMove() {
 
@@ -173,7 +171,7 @@ public class Machine {
 
             // Same format will be used in the minimax algorithm.
             copiedBoards[previousboard][i] = AGENT_MARK;
-            int score = minimax(copiedBoards, i, STARTING_DEPTH, MAXIMUM_SCORE, MINIMUM_SCORE, false);
+            int score = minimax(copiedBoards, i, STARTING_DEPTH, false);
             copiedBoards[previousboard][i] = EMPTY_CELL;
 
             if (score > bestScore) {
@@ -188,7 +186,7 @@ public class Machine {
     // 					MINIMAX ALGORITHM					//
     //////////////////////////////////////////////////////////
 
-    public static int minimax(int [][] boards, int nextBoard, int depth, int alpha, int beta, boolean isMax) {
+    public static int minimax(int [][] boards, int nextBoard, int depth, boolean isMax) {
         int[][] copiedBoards = copyBoards(boards);
 
         if (isWinning(copiedBoards[nextBoard], AGENT_MARK)) return 10000 * (depth + 1);
@@ -206,29 +204,23 @@ public class Machine {
         }
 
         if (isMax) {
-            int score = MINIMUM_SCORE;
+            int score = Integer.MIN_VALUE;
             for (int i = 1; i < 10; i++) {
                 if (copiedBoards[nextBoard][i] != EMPTY_CELL) continue;
 
                 copiedBoards[nextBoard][i] = AGENT_MARK;
-                score = Math.max(score, minimax(copiedBoards, i, depth - 1, alpha, beta, false));
+                score = Math.max(score, minimax(copiedBoards, i, depth - 1, false));
                 copiedBoards[nextBoard][i] = EMPTY_CELL;
-
-                alpha = Math.max(alpha, score);
-                if (score >= beta) break;
             }
             return score;
         } else {
-            int score = MAXIMUM_SCORE;
+            int score = Integer.MAX_VALUE;
             for (int i = 1; i < 10; i++) {
                 if (copiedBoards[nextBoard][i] != EMPTY_CELL) continue;
 
                 copiedBoards[nextBoard][i] = AGENT_MARK;
-                score = Math.min(score, minimax(copiedBoards, i, depth - 1, alpha, beta, true));
+                score = Math.min(score, minimax(copiedBoards, i, depth - 1, true));
                 copiedBoards[nextBoard][i] = EMPTY_CELL;
-
-                beta = Math.min(beta, score);
-                if (score <= alpha) break;
             }
             return score;
         }
@@ -272,16 +264,22 @@ public class Machine {
             }
         }
 
-        // Opponent has a two in a row, opponent may also have a positional advantage.
+        // Player has a two in a row, player may also have a positional advantage.
         if (agentPlacements == 0 && playerPlacements == 2) return -30 * positionalBonus;
 
-        // Current has a two in a row, current may also have a positional advantage.
+        // Agent has a two in a row, current may also have a positional advantage.
         if (agentPlacements == 2 && playerPlacements == 0) return 30 * positionalBonus;
 
-        // Opponent holds one position, opponent may also have a positional advantage.
+        // Player blocked agent.
+        if (agentPlacements == 2 && playerPlacements == 1) return -15 * positionalBonus;
+
+        // Agent blocked player.
+        if (agentPlacements == 1 && playerPlacements == 2) return 15 * positionalBonus;
+
+        // Player holds one position, player may also have a positional advantage.
         if (agentPlacements == 0 && playerPlacements == 1) return -1 * positionalBonus;
 
-        // Current holds one position, current may also have a positional advantage.
+        // Agent holds one position, current may also have a positional advantage.
         if (agentPlacements == 1 && playerPlacements == 0) return 1 * positionalBonus;
 
         // Neutral position.
