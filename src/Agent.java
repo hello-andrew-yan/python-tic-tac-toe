@@ -9,57 +9,57 @@
 //														//
 //////////////////////////////////////////////////////////
 
-
-/*
+/* //////////////////////////////////////////////////////////
+ * //               Andrew Yan | z5418971                  //
+ * //             Nathan Smith | z5416774                  //
+ * //////////////////////////////////////////////////////////
+ * 
  * Briefly describe how your program works, including any
  * algorithms and data structures employed, and explain
  *   any design decisions you made along the way.
  *
+ * 
+ * 
  * Everything past the "IMPLEMENTATION" banner is what we
  * have implemented in playing a game of 9-Board Tic-Tac-Toe.
  *
  * //////////////////////////////////////////////////////////
  * //                      ALGORITHM                       //
  * //////////////////////////////////////////////////////////
- *
- * Our AI agent uses Alpha-Beta pruning on the Minimax
- * algorithm, recursively evaluating possible moves every board
- * using a depth-limited search. It assigns scores to each move
- * based on a series of evaluation functions and terminal states
- * in our algorithm.
- *
- * If an early win is detected for our Agent we return a large
- * positive number and a large negative number if the win is
- * detected for the Player instead. This ensures our Agent will
- * maximise the moves that guarantee an early win before hitting
- * the depth limit.
- *
+ * 
+ * Our AI agent employs  Alpha-Beta pruning within the Minimax algorithm. 
+ * It performs a depth-limited search to recursively evaluate possible moves
+ * within each board iteration. Each move is assigned a score based on a 
+ * series of evaluation functions and terminal states. 
+ * 
+ * To expedite decision-making, our agent prioritises early victories. When 
+ * detecting a potential win, it assigns a large positive score if victory 
+ * is imminent for the agent, and a large negative score if the opponent is 
+ * close to a win. This prioritisation ensures that the agent maximises moves
+ * that lead to favorable outcomes before reaching the depth limit.
+ * 
  * //////////////////////////////////////////////////////////
  * //                  EVALUATION FUNCTION                 //
  * //////////////////////////////////////////////////////////
- *
- * If the depth limit does reach 0 from 8, we will evaluate the entire
- * board and return a scoring based on how advantageous the current state
- * of all 9 boards are to the agent. The evaluation of each board is
- * evaluated as follows:
- *
- * We have stored as a constant the sequence of possible win positions
- * in a game of Tic-Tac-Toe, (Example being {1, 2, 3}, horizontal row 1)
- * and iterate through each of them against a scoring function. Depending
- * on which mark is within those indexes in the board, i.e AGENT = 1 or
- * PLAYER = 2, do we return a positive negative number representing how
- * advantageous the board is to the AGENT. We return large scores of 30 for
- * two in a rows (O O _) assuming the rest are empty, a medium score of
- * 15 for how many two in a rows are blocked (X, X, O), and a value of 1
- * for single marks in a row (X _ _) assuming the rest are empty. These
- * are finally scaled by another constant representing a scoring based
- * on the position on the board, where corners giving an additional value
- * of x2, and the center giving an additional value of x5.
- *
- * With this in mind, the evaluation function returns the sum of these
- * win positions for a particular board. Finally in the minimax function,
- * the scores are summed for the entire 9 boards of the game to get a solid
- * scoring of how optimal the game is from the point of view of the agent.
+ * 
+ * When the depth limit is reached hitting 0 from 8, the entire game board 
+ * is evaluated. Each of the 9 boards is assessed for its advantage to the 
+ * agent using a predefined scoring system. 
+ * 
+ * We've predefined the possible win positions in Tic-Tac-Toe, such as horizontal 
+ * rows {1, 2, 3}, and iterate through these sequences to calculate a score for 
+ * each board. The score is determined based on the presence of agent marks (1) 
+ * or opponent marks (2) within these positions. For example, two agent marks 
+ * in a row (O O _) receive a high score of 30 assuming the last cell is empty, 
+ * while blocking two opponent marks (X X O) yields a medium score of 15. Single 
+ * marks in a row (o _ _) receive a lower score of 1, assuming the rest of the row is 
+ * empty. Additionally, we apply positional weighting, where corners provide 
+ * double the score and the center cell receives five times the score, stacking
+ * over each other.
+ * 
+ * Finally the terminal conditon in the minimax algorithm calculates the sum of
+ * this evalution for all 9 boards and uses this value as the rating for how optimal
+ * a entire game state will be.
  */
 
 
