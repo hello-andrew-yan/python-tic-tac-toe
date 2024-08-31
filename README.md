@@ -26,5 +26,5 @@
 ---
 
 <p align="right">
-  <a target="_blank" href="https://icons8.com/icon/102433/broken-link">Broken Link</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+  <a target="_blank" href="https://icons8.com/icon/QBVxjvVHuzKj/tic-tac-toe">Tic-Tac-Toe</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 </p>
